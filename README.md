@@ -24,3 +24,11 @@ mysql -u root -p'root' --default-character-set=utf8 -e "CREATE DATABASE IF NOT E
 ```sh
 docker-compose run --rm redis redis-cli -h host
 ```
+
+#### 容器管理
+
+```sh
+docker-compose up -d {container_name} # 后台启动容器
+docker-compose down # 删除容器
+docker-compose <stop|start|restart> {container_name} # 停止|启动|重启容器
+```
