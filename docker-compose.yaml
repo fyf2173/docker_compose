@@ -1,0 +1,97 @@
+version: "3"
+services:
+    nginx:
+      image: nginx:latest
+      container_name: nginx
+      ports: 
+        - 80:80
+        - 8099:8099
+      volumes:
+        - "~/docker_compose/nginx/conf:/etc/nginx/conf.d"
+        - "~/docker_compose/nginx/nginx.conf:/etc/nginx/nginx.conf"
+        - "~/docker_compose/nginx/log:/var/log/nginx"
+        - "/opt/:/opt/"
+      # depends_on:
+      #   - php
+      networks:
+        - new
+        
+    php:
+      build: ./docker_compose/php
+      container_name: php
+      ports:
+        - 9000:9000
+      working_dir: /opt/
+      volumes:
+        - "~/docker_compose/php/conf/php.ini:/etc/php7/php.ini"
+        - "~/docker_compose/php/conf/www.conf:/etc/php7/php-fpm.d/www.conf"
+        - "/opt/:/opt/"
+      command: > 
+        sh -c 'chmod -R a+w /opt/{project}/backend/runtime && chmod -R a+w /opt/{project}/console/runtime &&
+               (php /opt/{project}/yii queue/listen &) &&
+               crond -L /var/log/cron.log && 
+                /usr/sbin/php-fpm7 -F -R'
+      # depends_on:
+      #   - mariadb
+      #   - redis
+      networks:
+        new:
+          aliases:
+            - php_net
+
+    mysql:
+        image: mysql:5.5
+        container_name: mysql
+        ports:
+            - 3306:3306
+        environment:
+          - TZ=Asia/Shanghai
+          - LANG=en_US.UTF-8
+          - MYSQL_USER=admin
+          - MYSQL_PASSWORD=hedl92ddd!@#d
+          - MYSQL_ROOT_PASSWORD=hedl92ddd!@#d
+        volumes:
+            - "~/docker_compose/mysql/config:/etc/mysql/conf.d"
+            - "~/docker_compose/mysql/data:/var/lib/mysql"
+            - "~/docker_compose/mysql/log:/usr/local/mysql/log"
+        # restart: always
+        networks:
+          - new
+
+    mariadb:
+        image: mariadb:latest
+        container_name: mariadb
+        ports:
+            - 3306:3306
+        environment:
+          - TZ=Asia/Shanghai
+          - LANG=en_US.UTF-8
+          - MYSQL_USER=admin
+          - MYSQL_PASSWORD=admin
+          - MYSQL_ROOT_PASSWORD=root
+        volumes:
+            - "~/docker_compose/mariadb/conf/my.cnf:/etc/mysql/my.cnf"
+            - "~/docker_compose/mariadb/data:/var/lib/mysql"
+            - "~/docker_compose/mariadb/log:/var/log/mysql"
+        # restart: always
+        networks:
+          - new
+
+    redis:
+      image: redis:latest
+      container_name: redis
+      ports:
+        - 6379:6379
+      volumes:
+        - "~/docker_compose/redis/conf:/etc/redis"
+        - "~/docker_compose/redis/data:/data/db"
+        - "~/docker_compose/redis/log:/data/log/redis"
+      environment:
+        - TZ=Asia/Shanghai
+        - LANG=en_US.UTF-8
+      command: redis-server /etc/redis/redis.conf
+      networks:
+        - new
+
+networks:
+  new: 
