@@ -48,8 +48,8 @@ services:
           - TZ=Asia/Shanghai
           - LANG=en_US.UTF-8
           - MYSQL_USER=admin
-          - MYSQL_PASSWORD=hedl92ddd!@#d
-          - MYSQL_ROOT_PASSWORD=hedl92ddd!@#d
+          - MYSQL_PASSWORD=admin
+          - MYSQL_ROOT_PASSWORD=root
         volumes:
             - "~/docker_compose/mysql/config:/etc/mysql/conf.d"
             - "~/docker_compose/mysql/data:/var/lib/mysql"
